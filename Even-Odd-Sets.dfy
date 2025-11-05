@@ -388,7 +388,7 @@ method setScale(s: seq<int>, n: int) returns (t: seq<int>)
   ensures forall y :: (y in t) ==> exists x :: (x in s) && (n * x == y)
   // ensures n != 0 ==> |s| == |t|
   // ensures (n == 0 && |s| != 0) ==> |t| == 1
-{ // TODO: Implement the method
+{ // TODO: formally verify
   t := [];
   var i := 0;
   while i < |s|
@@ -400,13 +400,15 @@ method setScale(s: seq<int>, n: int) returns (t: seq<int>)
 
 /* Computes the product set of two sets s1 and s2, returning a new set t = { n * m | n in s1, m in s2 }  */
 method setProduct(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
-// TODO: Specify the behavior of this method so that your specification characterizes the allowed outputs,
-// and as many relevant properties of the result as you can.
   requires isSet(s1) && isSet(s2)
   ensures isSet(t)
-  ensures forall x :: (x in s1) ==> forall y :: (y in s2) ==> (x*y in t)
+  //* For every (n,m) pair in s1 x s2, we can find mn in t
+  //* This ensures all required elements are inside t.
+  ensures forall x :: (x in s1) ==> forall y :: (y in s2) ==> (x*y in t) 
+  //* For every z in t, we should be able to factorise it to z = xy, x in s1, y in s2.
+  //* This prevents redundant elements inside t.
   ensures forall z :: (z in t) ==> exists x :: x in s1 && exists y :: y in s2 && (z == x*y)
-{ // TODO: Implement the method
+{ // TODO: Formally verify
   t := [];
   var i := 0;
   while i < |s1|
@@ -428,13 +430,16 @@ method invertParitySet(s: seq<int>) returns (t:seq<int>)
 // and as many relevant properties of the result as you can.
   requires isSet(s) && isEvenSet(s)
   ensures isSet(t)
-  // TODO: Complete
-{ // TODO: Implement the method
+  ensures isOddSet(t)
+  ensures forall x :: (x in s) ==> (invertParity(x) in t)
+  ensures forall y :: (y in t) ==> (y - 1 in s) 
+  //* The condition above is defined that way specifically because invertParity(n) is defined
+  //* as n+1. So we simply have to reverse it to check that any element in t, is originally from s.
   t := [];
   var i := 0;
   while i < |s|
   {
-    t := t + [invertParity(s[i])];
+    t := addToSet(t, invertParity(s[i]));
     i := i + 1;
   }
 }
