@@ -392,6 +392,7 @@ method setScale(s: seq<int>, n: int) returns (t: seq<int>)
   t := [];
   var i := 0;
   while i < |s|
+    invariant isSet(t)
   {
     t := addToSet(t, n * s[i]);
     i := i + 1;
@@ -412,9 +413,11 @@ method setProduct(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
   t := [];
   var i := 0;
   while i < |s1|
+    invariant isSet(t)
   {
     var j := 0;
     while j < |s2|
+      invariant isSet(t)
     {
       t := addToSet(t, s1[i] * s2[j]);
       j := j + 1;
@@ -439,6 +442,7 @@ method invertParitySet(s: seq<int>) returns (t:seq<int>)
   t := [];
   var i := 0;
   while i < |s|
+    invariant isSet(t)
   {
     t := addToSet(t, invertParity(s[i]));
     i := i + 1;
