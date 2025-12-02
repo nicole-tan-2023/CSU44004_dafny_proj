@@ -455,27 +455,37 @@ method setProduct(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
   ensures isSet(t)
   ensures forall x :: x in t ==> exists i1, j1 :: 0 <= i1 < |s1| && 0 <= j1 < |s2| && x == s1[i1] * s2[j1]
   ensures forall i1, j1 :: i1 in s1 && j1 in s2 ==> i1 * j1 in t
-  // ensures isEvenSet(s1) || isEvenSet(s2) ==> isEvenSet(t)
-  // ensures isOddSet(s1) && isOddSet(s2) ==> isOddSet(t)
-{ 
+  ensures isEvenSet(s1) || isEvenSet(s2) ==> isEvenSet(t)
+  ensures isOddSet(s1) && isOddSet(s2) ==> isOddSet(t)
+{
+  // Old implementation.
   t := [];
   var i := 0;
   while i < |s1|
-    invariant isSet(t)
-    invariant 0 <= i <= |s1|
-    invariant forall k, j :: 0 <= k < i && 0 <= j < |s2| ==> s1[k] * s2[j] in t
-    invariant forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j]
   {
-    assert forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j];
-    var s2' := setScale(s2, s1[i]); 
-    t := union(t, s2');
-    assert forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j];
+    var j := 0;
+    while j < |s2|
+    {
+      t := addToSet(t, s1[i] * s2[j]);
+      j := j + 1;
+    }
     i := i + 1;
-    assert forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j];
   }
-  // assert forall j :: 0 <= j <= |s1| ==> forall i1, j1 :: i1 in s1[..j] && j1 in s2 ==> i1 * j1 in t;
-  // assert forall i1, j1 :: i1 in s1[..|s1|] && j1 in s2 ==> i1 * j1 in t;
-  // assert forall i1, j1 :: i1 in s1 && j1 in s2 ==> i1 * j1 in t;
+
+  // New implementation. If you want to use this feel free. Might be easier / hard to prove. I don't know yet
+  // t := [];
+  // var i := 0;
+  // while i < |s1|
+  //   invariant isSet(t)
+  //   invariant 0 <= i <= |s1|
+  //   invariant forall k, j :: 0 <= k < i && 0 <= j < |s2| ==> s1[k] * s2[j] in t
+  //   invariant forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j]
+  // {
+    
+  //   var s2' := setScale(s2, s1[i]); 
+  //   t := union(t, s2');
+  //   i := i + 1; 
+  // }
 }
 
 
