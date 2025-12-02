@@ -265,115 +265,115 @@ method union(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
 }
 
 // TODO Uncomment
-// /* intersects two sets s1 and s2, returning a new set t */
-// method intersection(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
-//   requires isSet(s1) && isSet(s2)
-//   ensures isSet(t)
-//   ensures forall x :: (0 <= x < |t| ==> t[x] in s1 && t[x] in s2)
-//   ensures forall x, y :: (0 <= x < |s1| && 0 <= y < |s2| && s1[x] == s2[y]) ==> s1[x] in t
-//   ensures isEvenSet(s1) ==> isEvenSet(t)
-//   ensures isOddSet(s1) ==> isOddSet(t)
-//   ensures isEvenSet(s1) && isOddSet(s2) ==> |t| == 0
-// {
-//   // hint: you may need to call:
-//   //  NotEvenANDOdd(s1[i]);
-//   // at the appropriate place in your code to help Dafny prove correctness
-//   t := [];
-//   var i := 0;
-//   while i < |s1|
-//     invariant 0 <= i <= |s1|
-//     invariant isSet(t)
-//     invariant forall k :: 0 <= k < i ==> (s1[k] in s2) ==> (s1[k] in t)
-//     //* The above invariant ensures dafny that we have checked that any element 
-//     //* in s1[0..max(i-1,0)] that is in s2 has been added to t
-//     invariant forall z :: (z in t) ==> (z in s1) && (z in s2)
-//     invariant isEvenSet(s1) && isOddSet(s2) ==> |t| == 0
-//   {
-//     var j := 0;
-//     while j < |s2|
-//       invariant 0 <= j <= |s2|
-//       invariant isSet(t)
-//       invariant forall k :: 0 <= k < i ==> (s1[k] in s2) ==> (s1[k] in t)
-//       invariant forall h :: 0 <= h < j ==> (s2[h] == s1[i]) ==> (s1[i] in t)
-//       //* The above invariant ensures dafny that we have checked that any element
-//       //* in s2[0..max(j-1,0)] that is equals to s1[i] has been added to t
-//       invariant forall z :: (z in t) ==> (z in s1) && (z in s2)
-//       invariant isEvenSet(s1) && isOddSet(s2) ==> |t| == 0
-//     {
-//       // Hints to help dafny
-//       NotEvenANDOdd(s1[i]);
-//       assert isEvenSet(s1) && isOddSet(s2) ==> isEven(s1[i]) && isOdd(s2[j]);
-//       assert isEvenSet(s1) && isOddSet(s2) ==> s1[i] != s2[j];
-//       if s1[i] == s2[j] {
-//         t := addToSet(t, s1[i]);
-//       }
-//       j := j + 1;
-//     }
-//     i := i + 1;
-//   }
+/* intersects two sets s1 and s2, returning a new set t */
+method intersection(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
+  requires isSet(s1) && isSet(s2)
+  ensures isSet(t)
+  ensures forall x :: (0 <= x < |t| ==> t[x] in s1 && t[x] in s2)
+  ensures forall x, y :: (0 <= x < |s1| && 0 <= y < |s2| && s1[x] == s2[y]) ==> s1[x] in t
+  ensures isEvenSet(s1) ==> isEvenSet(t)
+  ensures isOddSet(s1) ==> isOddSet(t)
+  ensures isEvenSet(s1) && isOddSet(s2) ==> |t| == 0
+{
+  // hint: you may need to call:
+  //  NotEvenANDOdd(s1[i]);
+  // at the appropriate place in your code to help Dafny prove correctness
+  t := [];
+  var i := 0;
+  while i < |s1|
+    invariant 0 <= i <= |s1|
+    invariant isSet(t)
+    invariant forall k :: 0 <= k < i ==> (s1[k] in s2) ==> (s1[k] in t)
+    //* The above invariant ensures dafny that we have checked that any element 
+    //* in s1[0..max(i-1,0)] that is in s2 has been added to t
+    invariant forall z :: (z in t) ==> (z in s1) && (z in s2)
+    invariant isEvenSet(s1) && isOddSet(s2) ==> |t| == 0
+  {
+    var j := 0;
+    while j < |s2|
+      invariant 0 <= j <= |s2|
+      invariant isSet(t)
+      invariant forall k :: 0 <= k < i ==> (s1[k] in s2) ==> (s1[k] in t)
+      invariant forall h :: 0 <= h < j ==> (s2[h] == s1[i]) ==> (s1[i] in t)
+      //* The above invariant ensures dafny that we have checked that any element
+      //* in s2[0..max(j-1,0)] that is equals to s1[i] has been added to t
+      invariant forall z :: (z in t) ==> (z in s1) && (z in s2)
+      invariant isEvenSet(s1) && isOddSet(s2) ==> |t| == 0
+    {
+      // Hints to help dafny
+      NotEvenANDOdd(s1[i]);
+      assert isEvenSet(s1) && isOddSet(s2) ==> isEven(s1[i]) && isOdd(s2[j]);
+      assert isEvenSet(s1) && isOddSet(s2) ==> s1[i] != s2[j];
+      if s1[i] == s2[j] {
+        t := addToSet(t, s1[i]);
+      }
+      j := j + 1;
+    }
+    i := i + 1;
+  }
   
-// }
+}
 
-// // [REPORT] This one is tedious to do because we needed to remember to define
-// // invariants for the while loop so that dafny knows that t == s[..i]
-// /* difference of two sets s1 and s2, returning a new set t = s1 - s2 */
-// method difference(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
-//   requires isSet(s1) && isSet(s2)
-//   ensures isSet(t)
-//   ensures forall x :: (0 <= x < |t| ==> t[x] in s1 && !(t[x] in s2))
-//   ensures forall x :: (0 <= x < |s1| && !(s1[x] in s2)) ==> s1[x] in t
-//   ensures isEvenSet(s1) ==> isEvenSet(t)
-//   ensures isOddSet(s1) ==> isOddSet(t)
-//   ensures isEvenSet(s1) && isOddSet(s2) ==> t == s1 // hint: don't use addToSet in your code -- use t + [s1[i]] instead
-// {
-//   //* The logic behind the proof of these set operations are similar to the ones above. 
-//   //* We will just talk about the new things to note here.
-//   t := [];
-//   var i := 0;
-//   while i < |s1|
-//     invariant 0 <= i <= |s1|
-//     invariant isSet(s1)
-//     invariant isSet(t)
-//     invariant forall k :: 0 <= k < i ==> (s1[k] !in s2) ==> (s1[k] in t)
-//     invariant forall z :: (z in t) ==> (z in s1) && (z !in s2)
-//     invariant forall x :: x in t ==> x in s1[..i]
-//     invariant isEvenSet(s1) && isOddSet(s2) ==> |s1[..i]| == |t|
-//     invariant isEvenSet(s1) && isOddSet(s2) ==> forall j :: 0 <= j < i ==> s1[j] == t[j]
-//   {
-//     var foundInS2 := false;
-//     var j := 0;
-//     while j < |s2| && !foundInS2
-//       invariant 0 <= j <= |s2|
-//       invariant isSet(t)
-//       invariant forall k :: 0 <= k < i ==> (s1[k] !in s2) ==> (s1[k] in t)
-//       invariant foundInS2 <==> exists h :: 0 <= h < j && s2[h] == s1[i]
-//       //* The above invariant helps dafny ensure that addToSet(t, s1[i]) will only 
-//       //* be called iff we did not find s1[i] in s2.
-//       invariant isEvenSet(s1) && isOddSet(s2) ==> !foundInS2
-//     {
-//       NotEvenANDOdd(s1[i]);
-//       assert isEvenSet(s1) && isOddSet(s2) ==> !foundInS2; 
-//       assert isEvenSet(s1) && isOddSet(s2) ==> isEven(s1[i]) && isOdd(s2[j]);
-//       assert isEvenSet(s1) && isOddSet(s2) ==> s1[i] != s2[j];
-//       if s1[i] == s2[j] {
-//         foundInS2 := true;
-//       }
-//       j := j + 1;
-//     }
-//     assert isEvenSet(s1) && isOddSet(s2) ==> !foundInS2;
-//     if !foundInS2 { 
-//       NotEvenANDOdd(s1[i]);
-//       assert isSet(t);
-//       assert forall x :: x in t ==> x in s1;
-//       assert (s1[i] !in t);
-//       t := t + [s1[i]];
-//       assert isSet(t);
-//     }
-//     i := i + 1;
-//   }
-//   assert isEvenSet(s1) && isOddSet(s2) ==> |t| == |s1|;
-//   assert isEvenSet(s1) && isOddSet(s2) ==> t == s1;
-// }
+// [REPORT] This one is tedious to do because we needed to remember to define
+// invariants for the while loop so that dafny knows that t == s[..i]
+/* difference of two sets s1 and s2, returning a new set t = s1 - s2 */
+method difference(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
+  requires isSet(s1) && isSet(s2)
+  ensures isSet(t)
+  ensures forall x :: (0 <= x < |t| ==> t[x] in s1 && !(t[x] in s2))
+  ensures forall x :: (0 <= x < |s1| && !(s1[x] in s2)) ==> s1[x] in t
+  ensures isEvenSet(s1) ==> isEvenSet(t)
+  ensures isOddSet(s1) ==> isOddSet(t)
+  ensures isEvenSet(s1) && isOddSet(s2) ==> t == s1 // hint: don't use addToSet in your code -- use t + [s1[i]] instead
+{
+  //* The logic behind the proof of these set operations are similar to the ones above. 
+  //* We will just talk about the new things to note here.
+  t := [];
+  var i := 0;
+  while i < |s1|
+    invariant 0 <= i <= |s1|
+    invariant isSet(s1)
+    invariant isSet(t)
+    invariant forall k :: 0 <= k < i ==> (s1[k] !in s2) ==> (s1[k] in t)
+    invariant forall z :: (z in t) ==> (z in s1) && (z !in s2)
+    invariant forall x :: x in t ==> x in s1[..i]
+    invariant isEvenSet(s1) && isOddSet(s2) ==> |s1[..i]| == |t|
+    invariant isEvenSet(s1) && isOddSet(s2) ==> forall j :: 0 <= j < i ==> s1[j] == t[j]
+  {
+    var foundInS2 := false;
+    var j := 0;
+    while j < |s2| && !foundInS2
+      invariant 0 <= j <= |s2|
+      invariant isSet(t)
+      invariant forall k :: 0 <= k < i ==> (s1[k] !in s2) ==> (s1[k] in t)
+      invariant foundInS2 <==> exists h :: 0 <= h < j && s2[h] == s1[i]
+      //* The above invariant helps dafny ensure that addToSet(t, s1[i]) will only 
+      //* be called iff we did not find s1[i] in s2.
+      invariant isEvenSet(s1) && isOddSet(s2) ==> !foundInS2
+    {
+      NotEvenANDOdd(s1[i]);
+      assert isEvenSet(s1) && isOddSet(s2) ==> !foundInS2; 
+      assert isEvenSet(s1) && isOddSet(s2) ==> isEven(s1[i]) && isOdd(s2[j]);
+      assert isEvenSet(s1) && isOddSet(s2) ==> s1[i] != s2[j];
+      if s1[i] == s2[j] {
+        foundInS2 := true;
+      }
+      j := j + 1;
+    }
+    assert isEvenSet(s1) && isOddSet(s2) ==> !foundInS2;
+    if !foundInS2 { 
+      NotEvenANDOdd(s1[i]);
+      assert isSet(t);
+      assert forall x :: x in t ==> x in s1;
+      assert (s1[i] !in t);
+      t := t + [s1[i]];
+      assert isSet(t);
+    }
+    i := i + 1;
+  }
+  assert isEvenSet(s1) && isOddSet(s2) ==> |t| == |s1|;
+  assert isEvenSet(s1) && isOddSet(s2) ==> t == s1;
+}
 
 
 // [REPORT] Learnt that something we need to comment out stuff in dafny. otherwise TLE. 
@@ -446,37 +446,37 @@ method setScale(s: seq<int>, n: int) returns (t: seq<int>)
 }
 
 
+// TODO: This method up to you already Nicole 💀
 // [REPORT] Rewrote this to avoid double while loops.
 // Instead we use proved procedures to simplify proof.
 // Learnt here that dafny does better with indexed access
-// TODO: Finsh
-// method setProduct(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
-//   requires isSet(s1) && isSet(s2)
-//   ensures isSet(t)
-//   ensures forall x :: x in t ==> exists i1, j1 :: 0 <= i1 < |s1| && 0 <= j1 < |s2| && x == s1[i1] * s2[j1]
-//   ensures forall i1, j1 :: i1 in s1 && j1 in s2 ==> i1 * j1 in t
-//   // ensures isEvenSet(s1) || isEvenSet(s2) ==> isEvenSet(t)
-//   // ensures isOddSet(s1) && isOddSet(s2) ==> isOddSet(t)
-// { 
-//   t := [];
-//   var i := 0;
-//   while i < |s1|
-//     invariant isSet(t)
-//     invariant 0 <= i <= |s1|
-//     invariant forall k, j :: 0 <= k < i && 0 <= j < |s2| ==> s1[k] * s2[j] in t
-//     invariant forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j]
-//   {
-//     assert forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j];
-//     var s2' := setScale(s2, s1[i]); 
-//     t := union(t, s2');
-//     assert forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j];
-//     i := i + 1;
-//     assert forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j];
-//   }
-//   // assert forall j :: 0 <= j <= |s1| ==> forall i1, j1 :: i1 in s1[..j] && j1 in s2 ==> i1 * j1 in t;
-//   // assert forall i1, j1 :: i1 in s1[..|s1|] && j1 in s2 ==> i1 * j1 in t;
-//   // assert forall i1, j1 :: i1 in s1 && j1 in s2 ==> i1 * j1 in t;
-// }
+method setProduct(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
+  requires isSet(s1) && isSet(s2)
+  ensures isSet(t)
+  ensures forall x :: x in t ==> exists i1, j1 :: 0 <= i1 < |s1| && 0 <= j1 < |s2| && x == s1[i1] * s2[j1]
+  ensures forall i1, j1 :: i1 in s1 && j1 in s2 ==> i1 * j1 in t
+  // ensures isEvenSet(s1) || isEvenSet(s2) ==> isEvenSet(t)
+  // ensures isOddSet(s1) && isOddSet(s2) ==> isOddSet(t)
+{ 
+  t := [];
+  var i := 0;
+  while i < |s1|
+    invariant isSet(t)
+    invariant 0 <= i <= |s1|
+    invariant forall k, j :: 0 <= k < i && 0 <= j < |s2| ==> s1[k] * s2[j] in t
+    invariant forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j]
+  {
+    assert forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j];
+    var s2' := setScale(s2, s1[i]); 
+    t := union(t, s2');
+    assert forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j];
+    i := i + 1;
+    assert forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j];
+  }
+  // assert forall j :: 0 <= j <= |s1| ==> forall i1, j1 :: i1 in s1[..j] && j1 in s2 ==> i1 * j1 in t;
+  // assert forall i1, j1 :: i1 in s1[..|s1|] && j1 in s2 ==> i1 * j1 in t;
+  // assert forall i1, j1 :: i1 in s1 && j1 in s2 ==> i1 * j1 in t;
+}
 
 
 // [REPORT] This method is easy for us because we already wrecked our brains thinking of
