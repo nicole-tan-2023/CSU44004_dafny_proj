@@ -264,7 +264,7 @@ method union(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
   }
 }
 
-
+// TODO Uncomment
 // /* intersects two sets s1 and s2, returning a new set t */
 // method intersection(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
 //   requires isSet(s1) && isSet(s2)
@@ -449,39 +449,40 @@ method setScale(s: seq<int>, n: int) returns (t: seq<int>)
 // [REPORT] Rewrote this to avoid double while loops.
 // Instead we use proved procedures to simplify proof.
 // Learnt here that dafny does better with indexed access
-// TODO
-method setProduct(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
-  requires isSet(s1) && isSet(s2)
-  ensures isSet(t)
-  ensures forall x :: x in t ==> exists i1, j1 :: 0 <= i1 < |s1| && 0 <= j1 < |s2| && x == s1[i1] * s2[j1]
-  ensures forall i1, j1 :: i1 in s1 && j1 in s2 ==> i1 * j1 in t
-  // ensures isEvenSet(s1) || isEvenSet(s2) ==> isEvenSet(t)
-  // ensures isOddSet(s1) && isOddSet(s2) ==> isOddSet(t)
-{ 
-  t := [];
-  var i := 0;
-  while i < |s1|
-    invariant isSet(t)
-    invariant 0 <= i <= |s1|
-    invariant forall k, j :: 0 <= k < i && 0 <= j < |s2| ==> s1[k] * s2[j] in t
-    invariant forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j]
-  {
-    forall x: int ensures 0 <= x < |t| ==> exists k: int, j: int {:trigger s2[j], s1[k]} :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j] {
-      assert 0 <= x < |t| ==> exists k: int, j: int {:trigger s2[j], s1[k]} :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j];
-    }
-    // assert forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j];
-    var s2' := setScale(s2, s1[i]); 
-    t := union(t, s2');
-    assert forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j];
-    i := i + 1;
-    assert forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j];
-  }
-  // assert forall j :: 0 <= j <= |s1| ==> forall i1, j1 :: i1 in s1[..j] && j1 in s2 ==> i1 * j1 in t;
-  // assert forall i1, j1 :: i1 in s1[..|s1|] && j1 in s2 ==> i1 * j1 in t;
-  // assert forall i1, j1 :: i1 in s1 && j1 in s2 ==> i1 * j1 in t;
-}
+// TODO: Finsh
+// method setProduct(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
+//   requires isSet(s1) && isSet(s2)
+//   ensures isSet(t)
+//   ensures forall x :: x in t ==> exists i1, j1 :: 0 <= i1 < |s1| && 0 <= j1 < |s2| && x == s1[i1] * s2[j1]
+//   ensures forall i1, j1 :: i1 in s1 && j1 in s2 ==> i1 * j1 in t
+//   // ensures isEvenSet(s1) || isEvenSet(s2) ==> isEvenSet(t)
+//   // ensures isOddSet(s1) && isOddSet(s2) ==> isOddSet(t)
+// { 
+//   t := [];
+//   var i := 0;
+//   while i < |s1|
+//     invariant isSet(t)
+//     invariant 0 <= i <= |s1|
+//     invariant forall k, j :: 0 <= k < i && 0 <= j < |s2| ==> s1[k] * s2[j] in t
+//     invariant forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j]
+//   {
+//     assert forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j];
+//     var s2' := setScale(s2, s1[i]); 
+//     t := union(t, s2');
+//     assert forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j];
+//     i := i + 1;
+//     assert forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j];
+//   }
+//   // assert forall j :: 0 <= j <= |s1| ==> forall i1, j1 :: i1 in s1[..j] && j1 in s2 ==> i1 * j1 in t;
+//   // assert forall i1, j1 :: i1 in s1[..|s1|] && j1 in s2 ==> i1 * j1 in t;
+//   // assert forall i1, j1 :: i1 in s1 && j1 in s2 ==> i1 * j1 in t;
+// }
 
-/*
+
+// [REPORT] This method is easy for us because we already wrecked our brains thinking of
+// How do do the one for setScale. We notice that after the boundary conditions in setscale
+// we basically have the same while loop body of t := addToSet(t, value).
+// This immediately tells us that we will need some of the invariants of the loop in setScale
 /* converts an even set to an odd set by inverting the parity of each element  */
 method invertParitySet(s: seq<int>) returns (t:seq<int>)
   requires isEvenSet(s) || isOddSet(s)
@@ -489,15 +490,18 @@ method invertParitySet(s: seq<int>) returns (t:seq<int>)
   ensures isOddSet(s) ==> isEvenSet(t)
   ensures |t| == |s|
   ensures forall i :: 0 <= i < |s| ==> t[i] == invertParity(s[i])
-{ // TODO: fill in your code here and prove method correct
-  // hint: you may need to call:
-  //  InvertParityCorrect(s[i]);
-  // at the appropriate place in your code to help Dafny prove correctness
+{
   t := [];
   var i := 0;
   while i < |s|
     invariant isSet(t)
+    invariant 0 <= i <= |s|
+    invariant |t| == i
+    invariant forall j :: 0 <= j < i ==> t[j] == invertParity(s[j])
+    invariant isEvenSet(s) ==> isOddSet(t)
+    invariant isOddSet(s) ==> isEvenSet(t)
   {
+    InvertParityCorrect(s[i]);
     t := addToSet(t, invertParity(s[i]));
     i := i + 1;
   }
