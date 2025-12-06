@@ -120,7 +120,8 @@ lemma InvertParityCorrect(n: int)
 
 /* A set is represented as a sequence with no duplicates */
 predicate isSet(s: seq<int>) {
-  forall i, j :: 0 <= i < |s| && 0 <= j < |s| && s[i] == s[j] ==> i == j
+  forall i,j: int :: 0 <= i < j < |s| ==> 
+  s[j] != s[i]
 }
 
 // hint don't use return statements. Set b instead.
@@ -264,7 +265,7 @@ method union(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
   }
 }
 
-// TODO Uncomment
+
 /* intersects two sets s1 and s2, returning a new set t */
 method intersection(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
   requires isSet(s1) && isSet(s2)
@@ -458,35 +459,35 @@ method setProduct(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
   ensures isEvenSet(s1) || isEvenSet(s2) ==> isEvenSet(t)
   ensures isOddSet(s1) && isOddSet(s2) ==> isOddSet(t)
 {
-  // Old implementation.
   t := [];
   var i := 0;
+
   while i < |s1|
+    invariant isSet(t)
+    invariant 0 <= i <= |s1|
+    invariant forall k, j :: 0 <= k < i && 0 <= j < |s2| ==> s1[k] * s2[j] in t
   {
-    var j := 0;
-    while j < |s2|
-    {
-      t := addToSet(t, s1[i] * s2[j]);
-      j := j + 1;
-    }
+    var s3 := setScale(s2, s1[i]);  
+    assert isEvenSet(s1) || isEvenSet(s2) ==> isEvenSet(s3);
+    assert isOddSet(s1) && isOddSet(s2) ==> isOddSet(s3);
+    assert forall z :: z in s3 ==> exists j :: 0 <= j < |s2| && z == s1[i] * s2[j];
+
+    t := union(t, s3);
+
+    // Now s3 elements are in t (usually trivial if union is specified)
+    assert forall z :: z in s3 ==> z in t;
+    assert isEvenSet(s1) || isEvenSet(s2) ==> isEvenSet(t);
+    assert isOddSet(s1) && isOddSet(s2) ==> isOddSet(t);
+
+    // advance to next iteration — now the invariant with k < i will include i-old
     i := i + 1;
   }
 
-  // New implementation. If you want to use this feel free. Might be easier / hard to prove. I don't know yet
-  // t := [];
-  // var i := 0;
-  // while i < |s1|
-  //   invariant isSet(t)
-  //   invariant 0 <= i <= |s1|
-  //   invariant forall k, j :: 0 <= k < i && 0 <= j < |s2| ==> s1[k] * s2[j] in t
-  //   invariant forall x :: 0 <= x < |t| ==> exists k, j :: 0 <= k < i && 0 <= j < |s2| && t[x] == s1[k] * s2[j]
-  // {
-    
-  //   var s2' := setScale(s2, s1[i]); 
-  //   t := union(t, s2');
-  //   i := i + 1; 
-  // }
+  // At loop exit, i == |s1|, so the invariant "forall k < i" covers all k in 0..|s1|-1
+  // Prove the final postcondition explicitly if Dafny still needs help:
+  assert forall x :: x in t ==> exists i1, j1 :: 0 <= i1 < |s1| && 0 <= j1 < |s2| && x == s1[i1] * s2[j1];
 }
+
 
 
 // [REPORT] This method is easy for us because we already wrecked our brains thinking of
