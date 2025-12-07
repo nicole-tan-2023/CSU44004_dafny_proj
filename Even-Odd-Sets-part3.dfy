@@ -315,9 +315,6 @@ method intersection(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
   
 }
 
-// [REPORT] This one is tedious to do because we needed to remember to define
-// invariants for the while loop so that dafny knows that t == s[..i]
-/* difference of two sets s1 and s2, returning a new set t = s1 - s2 */
 method difference(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
   requires isSet(s1) && isSet(s2)
   ensures isSet(t)
@@ -376,14 +373,6 @@ method difference(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
   assert isEvenSet(s1) && isOddSet(s2) ==> t == s1;
 }
 
-
-// [REPORT] Learnt that something we need to comment out stuff in dafny. otherwise TLE. 
-// Theory vs Practical diff. For instance, we already got everything correct,
-// but we just needed to comment out the asserts that are slowing everything down.
-// With this we learnt to write proof for each PC one at a time, removing the asserts 
-// afterwards. We only keep the ones that are necessary.
-// Also, so this method, we decided to move the edge case checking up top
-// This is to simplify the logic of the checking in the main while loop. Elaborate more ty.
 /* multiplies each element of a set s by n, returning a new set t */
 method setScale(s: seq<int>, n: int) returns (t: seq<int>)
   requires isSet(s)
@@ -434,7 +423,7 @@ method setScale(s: seq<int>, n: int) returns (t: seq<int>)
   
     i := i + 1;
   }
-  // [REPORT] Removed asserts example
+  // [Report reflection about setScale] Removed asserts example
   // assert isOddSet(s) && isOdd(n) ==> isOddSet(t);
   // assert forall x :: (0 <= x < |s|) ==> t[x] == s[x] * n;
   // assert forall x :: (0 <= x < |t| ==> exists j :: 0 <= j < |s| && t[x] == s[j] * n);
@@ -447,10 +436,7 @@ method setScale(s: seq<int>, n: int) returns (t: seq<int>)
 }
 
 
-// [REPORT] Rewrote this to avoid double while loops.
-// Instead we use proved procedures to simplify proof.
-// Learnt here that dafny does better with indexed access
-// Unforuntately we were unable prove the existential postcondition
+// Unforuntately we were unable prove the existential postcondition (commented out)
 method setProduct(s1: seq<int>, s2: seq<int>) returns (t: seq<int>)
   requires isSet(s1) && isSet(s2)
   ensures isSet(t)
